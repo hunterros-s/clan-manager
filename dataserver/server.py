@@ -14,7 +14,7 @@ class MyHttpRequestHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
         # Convert shared.clan_data into pretty-printed JSON with indentation
-        pretty_json = json.dumps(shared.clan_data, indent=4)
+        pretty_json = json.dumps(shared.clan_data, indent=2)
         self.wfile.write(pretty_json.encode('utf-8'))  # Write the JSON response to the client
 
 # Create a server class by mixing ThreadingMixIn with HTTPServer
@@ -23,9 +23,9 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 # Create a function to run the server in a separate thread
 def run_server_in_thread():
-    server_address = ('', 8080)  # Define the server address and port
+    server_address = ('', 9001)  # Define the server address and port
     httpd = ThreadedHTTPServer(server_address, MyHttpRequestHandler)  # Create a threaded HTTP server
-    print("Server running at port 8080")  # Print a message indicating the server is running
+    shared.log.info("Data server running at port 9001")  # Print a message indicating the server is running
     httpd.serve_forever()  # Start serving HTTP requests indefinitely
 
 # Function to start the HTTP server in a separate thread
