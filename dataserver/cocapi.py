@@ -8,6 +8,18 @@ from coc import utils
 
 coc_client = None
 
+def move_former_to_current(tag):
+    # Move member data from former_members to current_members
+    member_data = shared.clan_data['former_members'].pop(tag)
+    shared.clan_data['current_members'][tag] = member_data
+    shared.log.info(f"{member_data['name']} ({tag}) moved to current members dict.")
+
+def move_current_to_former(tag):
+    # Move member data from current_members to former_members
+    member_data = shared.clan_data['current_members'].pop(tag)
+    shared.clan_data['former_members'][tag] = member_data
+    shared.log.info(f"{member_data['name']} ({tag}) moved to former members dict.")
+
 """Clan Events"""
 
 # Triggered when a member joins the clan
@@ -17,13 +29,14 @@ async def on_clan_member_join(member, clan):
     #shared.log.info(f"{member.name} ({member.tag}) added to event listener.")
     shared.log.info(f"{member.name} has joined {clan.name}")
     # check former members for player, if not, create new dict for this player
+    d_member = await get_detailed_member(member)
     if member.tag in shared.clan_data['former_members']:
-        # Move member data from former_members to current_members
-        member_data = shared.clan_data['former_members'].pop(member.tag)
-        shared.clan_data['current_members'][member.tag] = member_data
-        shared.log.info(f"{member.name} ({member.tag}) moved to current members dict.")
+        shared.log.info(f"A former member has rejoined, using old dict and updating.")
+        move_former_to_current(member.tag)
+        init_member(d_member)
     else:
-        shared.log.info(f"{member.name} ({member.tag}) not found in former members dict.")
+        shared.log.info(f"Creating new member dict for {member.name} ({member.tag})")
+        init_member(d_member, True)
 
 # Triggered when a member leaves the clan
 @coc.ClanEvents.member_leave()
@@ -33,11 +46,9 @@ async def on_clan_member_leave(member, clan):
     shared.log.info(f"{member.name} has left {clan.name}")
     # Need to move this member's dict to former members
     if member.tag in shared.clan_data['current_members']:
-        # Move member data from current_members to former_members
-        member_data = shared.clan_data['current_members'].pop(member.tag)
-        shared.clan_data['former_members'][member.tag] = member_data
-        shared.log.info(f"{member.name} ({member.tag}) moved to former members dict.")
+        move_current_to_former(member.tag)
     else:
+        # This is an error. shouldn't happen.
         shared.log.info(f"{member.name} ({member.tag}) not found in current members dict.")
 
 @coc.ClanEvents.name()
@@ -53,7 +64,8 @@ async def update_clan_desc(_, clan):
 @coc.ClanEvents.badge()
 async def update_clan_badge(_, clan):
     shared.clan_data['badge'] = clan.badge.large
-    shared.log.info(f"{clan.name} ({clan.tag}) badge updated.")
+    #This changes all the time for some reason so I'm not going to log a message
+    #shared.log.info(f"{clan.name} ({clan.tag}) badge updated.")
 
 @coc.ClanEvents.level()
 async def update_clan_level(_, clan):
@@ -75,7 +87,7 @@ async def update_clan_points(_, clan):
     shared.clan_data['points'] = clan.points
     shared.log.info(f"{clan.name} ({clan.tag}) points updated.")
 
-@coc.ClanEvents.versus_points()
+@coc.ClanEvents.builder_base_points()
 async def update_clan_builder_points(_, clan):
     shared.clan_data['builder_base_points'] = clan.builder_base_points
     shared.log.info(f"{clan.name} ({clan.tag}) builder base points updated.")
@@ -103,13 +115,14 @@ async def on_clan_member_donation_receive(old_member, new_member):
 async def on_clan_member_role_change(old_member, new_member):
     shared.log.info(
         f"{new_member} of {new_member.clan} {old_member.role} -> {new_member.role}")
+    shared.clan_data[new_member.tag]['role'] = new_member.role
 
 @coc.ClanEvents.member_trophies()
 async def on_clan_member_trophy_change(old_member, new_member):
     shared.log.info(
         f"{new_member} of {new_member.clan} trophies went from {old_member.trophies} to {new_member.trophies}")
 
-@coc.ClanEvents.member_versus_trophies()
+@coc.ClanEvents.member_builder_base_trophies()
 async def clan_member_builder_trophies_changed(old_member, new_member):
     shared.log.info(
         f"{new_member} versus trophies changed from {old_member.builder_base_trophies} to {new_member.builder_base_trophies}")
@@ -148,60 +161,99 @@ def setup_events():
         clan_member_builder_trophies_changed
     )
 
+def set_clan_information(clan):
+    shared.clan_data['name'] = clan.name
+    shared.clan_data['tag'] = clan.tag
+    shared.clan_data['description'] = clan.description
+    shared.clan_data['badge'] = clan.badge.large
+    shared.clan_data['level'] = clan.level
+    shared.clan_data['location'] = clan.location.name
+    shared.clan_data['type'] = clan.type
+    shared.clan_data['points'] = clan.points
+    shared.clan_data['builder_base_points'] = clan.builder_base_points
+    shared.clan_data['member_count'] = clan.member_count
+    shared.clan_data['share_link'] = clan.share_link
 
-async def populate_clan_data() -> None:
-    clan = await coc_client.get_clan(tag=shared.clan_tag)
+    if 'current_members' not in shared.clan_data:
+        shared.clan_data['current_members'] = {}
 
-    # get general clan member information
-    shared.clan_data = {
-        'name': clan.name,
-        'tag': clan.tag,
-        'description': clan.description,
-        'badge': clan.badge.large,
-        'level': clan.level,
-        'location': clan.location.name,
-        'type': clan.type,
-        'points': clan.points,
-        'builder_base_points': clan.builder_base_points,
-        'member_count': clan.member_count,
-        'share_link': clan.share_link,
-        'current_members': {},
-        'former_members': {}
-    }
+    if 'fomer_members' not in shared.clan_data:
+        shared.clan_data['former_members'] = {}
 
-    # Get basic clan member information
-    for member in clan.members:
-        shared.clan_data['current_members'][member.tag] = {
-            'name': member.name,
-            'role': str(member.role),
-            'league': member.league.icon.medium,
-            'share_link': member.share_link,
-            # Time series following:
-            'exp_level': [timestamp(member.exp_level)],
-            'trophies': [timestamp(member.trophies)],
-            'builder_base_trophies': [timestamp(member.builder_base_trophies)],
-        }
 
-    # Get more specifc clan member information
+async def get_clan_data():
+    return await coc_client.get_clan(tag=shared.clan_tag)
+
+
+# takes basic member and returns detailed member. see more info in the coc.py documentation
+async def get_detailed_member(member):
+    return await coc_client.get_player(player_tag=member.tag)
+
+
+# this has to be a detailed member. doesn't work for member object from clan update
+def init_member(detailed_member, new_member=False):
+    member_data = shared.clan_data['current_members'][detailed_member.tag]
+
+    member_data['name'] = detailed_member.name
+
+    if new_member:
+        member_data['joined'] = int(time.time())
+        member_data['last_active'] = int(time.time())
+
+    member_data['role'] = str(detailed_member.role)
+    member_data['league'] = detailed_member.league.icon.medium
+    member_data['share_link'] = detailed_member.share_link
+
+    # time series
+    def update_timeseries(key, achievement):
+        if key not in member_data:
+            member_data[key] = [{
+                "value": detailed_member.get_achievement(achievement).value,
+                "timestamp": int(time.time())
+            }]
+            return
+        most_recent = member_data[key][-1]
+        achievement_value = detailed_member.get_achievement(achievement).value
+        if most_recent['value'] != achievement_value:
+            shared.log.info(f"{detailed_member.name} ({detailed_member.tag}) {key} updated.")
+            member_data[key].append({
+                "value": achievement_value,
+                'timestamp': int(time.time())
+            })
+
+    update_timeseries('trophies', "Sweet Victory!")
+    update_timeseries('builder_base_trophies', "Champion Builder")
+    update_timeseries('gold_looted', "Gold Grab")
+    update_timeseries('elixir_looted', "Elixir Escapade")
+    update_timeseries('dark_elixir_looted', "Heroic Heist")
+    update_timeseries('attacks_won', "Conqueror")
+    update_timeseries('donated', "Friend in Need")
+    update_timeseries('spell_donated', "Sharing is caring")
+    update_timeseries('machine_donated', "Siege Sharer")
+    update_timeseries('war_stars', "War Hero")
+    update_timeseries('clan_games_points', "Games Champion")
+    update_timeseries('war_league_stars', "War League Legend")
+    update_timeseries('capital_gold_looted', "Aggressive Capitalism")
+    update_timeseries('clan_capital_contributions', "Most Valuable Clanmate")
+
+# Reinitialize members from the loaded data
+async def reinit_members(clan):
     async for member in clan.get_detailed_members():
-        # Time series following:
-        member_info = shared.clan_data['current_members'][member.tag]
+        if member.tag in shared.clan_data['former_members']:
+            move_former_to_current(member.tag)
 
-        def get_achievement_value(name):
-            return member.get_achievement(name).value
-
-        member_info['gold_looted'] = [timestamp(get_achievement_value("Gold Grab"))]
-        member_info['elixir_looted'] = [timestamp(get_achievement_value("Elixir Escapade"))]
-        member_info['dark_elixir_looted'] = [timestamp(get_achievement_value("Heroic Heist"))]
-        member_info['attacks_won'] = [timestamp(get_achievement_value("Conqueror"))]
-        member_info['donated'] = [timestamp(get_achievement_value("Friend in Need"))]
-        member_info['spell_donated'] = [timestamp(get_achievement_value("Sharing is caring"))]
-        member_info['machine_donated'] = [timestamp(get_achievement_value("Siege Sharer"))]
-        member_info['war_stars'] = [timestamp(get_achievement_value("War Hero"))]
-        member_info['clan_games_points'] = [timestamp(get_achievement_value("Games Champion"))]
-        member_info['war_league_stars'] = [timestamp(get_achievement_value("War League Legend"))]
-        member_info['capital_gold_looted'] = [timestamp(get_achievement_value("Aggressive Capitalism"))]
-        member_info['clan_capital_contributions'] = [timestamp(get_achievement_value("Most Valuable Clanmate"))]
+        new_member = False
+        if member.tag not in shared.clan_data['current_members']:
+            new_member = True
+        
+        init_member(member, new_member)
+    
+    # need to move members that are no longer in the clan to former members.
+    tags = [member.tag for member in clan.members]
+    formers = [tag for tag in shared.clan_data['current_members'].keys() if tag not in tags]
+    for tag in formers:
+        shared.log.info(f"{shared.clan_data['current_members'][tag]['name']} ({tag}) no longer in the clan. Moving to former members.")
+        move_current_to_former(tag)
 
 
 async def login() -> None:

@@ -2,6 +2,7 @@ import shared
 
 import os
 import json
+import asyncio
 
 # Get the directory path of the current Python file
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -19,16 +20,15 @@ def import_data():
             shared.clan_data = json.load(json_file)
             # Log a message confirming successful loading of clan data
             shared.log.info(f"Clan data loaded from {data_file_path}")
-            return True
+
     except FileNotFoundError:
         # Handle the case where the file doesn't exist
         # Log a message indicating that the file wasn't found and clan data couldn't be loaded
         shared.log.info(f"File not found: {data_file_path}; clan data not loaded")
         # Log a message indicating initialization of an empty clan data object
-        shared.log.info(f"Initializing empty clan data object")
+        shared.log.info(f"Initializing empty clan data dict.")
         # Create an empty dictionary for clan_data as the file wasn't found
         shared.clan_data = {}
-        return False
 
 def save_data():
     # Log an informational message indicating an attempt to clan member data to the file
@@ -44,4 +44,11 @@ def save_data():
         # Handle any exceptions that might occur during the file write process
         # Log an error message including the specific exception that occurred
         shared.log.info(f"An error occurred while saving clan data: {e}")
+
+async def save_data_periodically():
+    while True:
+        await asyncio.sleep(300)  # 300 seconds = 5 minutes
+        shared.log.info("Saving data...")
+        save_data()
+        shared.log.info("Data saved.")
 

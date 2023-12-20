@@ -2,29 +2,37 @@ import shared
 import asyncio
 
 from server import start_server
-from model import import_data, save_data
+from model import import_data, save_data, save_data_periodically
 
-from cocapi import login, populate_clan_data, setup_events, close_coc_client
+from cocapi import login, setup_events, close_coc_client
+from cocapi import get_clan_data, set_clan_information, reinit_members
 
 
 async def main():
-    start_server()
-
     await login()
 
-    loaded = import_data()
+    import_data()
 
-    if not loaded:
-        shared.log.info("Clan info file not found, populating from scratch.")
-        await populate_clan_data()
-        save_data()
+    clan = await get_clan_data()
+    set_clan_information(clan)
+
+    await reinit_members(clan)
+
+    save_data()
 
     setup_events()
 
+    shared.log.info("Starting data save routine. Saving data every 5 minutes...")
+    save_data_periodically()
+
+
 if __name__ == "__main__":
+    start_server()
+
     loop = asyncio.new_event_loop()
     try:
         loop.run_until_complete(main())
+        loop.run_forever()
     except KeyboardInterrupt:
         pass
     finally:
