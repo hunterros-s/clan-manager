@@ -23,7 +23,7 @@ async def main():
     setup_events()
 
     shared.log.info("Starting data save routine. Saving data every 5 minutes...")
-    save_data_periodically()
+    await save_data_periodically()
 
 
 if __name__ == "__main__":
