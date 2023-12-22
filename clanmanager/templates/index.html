@@ -1,4 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
-Hello world!
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clash of Clans Clan Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="badge-container">
+                <img class="badge" src="{{ clan['badge'] }}" alt="Clan Badge">
+            </div>
+            <div class="information">
+                <h1 class="clan-name">{{ clan['name'] }}</h1>
+                <p class="tag">{{ clan['tag'] }}</p>
+                <p class="description">{{ clan['description'] }}</p>
+            </div>
+        </div>
+        <div class="additional-info">
+            <p class="level">Level: {{ clan['level'] }}</p>
+            <p class="location">Location: {{ clan['location'] }}</p>
+            <p class="type">Type: {{ clan['type'] }}</p>
+            <p class="points">Points: {{ clan['points'] }}</p>
+            <p class="builder-base-points">Builder Base Points: {{ clan['builder_base_points'] }}</p>
+            <p class="member-count">Member Count: {{ clan['member_count'] }}</p>
+            <a class="share-link" href="{{ clan['share_link'] }}" target="_blank">Clan Link</a>
+        </div>
+    </div>
+    {% for member in members %}
+    <div class="container">
+        <div class="header">
+            {% if member['league'] is not none %}
+            <div class="badge-container">
+                <img class="league" src="{{ member['league'] }}" alt="Member League">
+            </div>
+            {% endif %}
+            <div class="information">
+                <h1 class="clan-name">{{ member['name'] }}</h1>
+                <p class="tag">{{ member['tag'] }}</p>
+                <p class="description">{{ member['role']}}</p>
+            </div>
+        </div>
+        <div class="additional-info">
+            <p>Last seen: {{ member['last_active'] }}</p>
+
+            <p>First seen: {{ member['joined'] }}</p>
+            <a class="share-link" href="{{ member['share_link'] }}" target="_blank">Member Link</a>
+        </div>
+    </div>
+    {% endfor %}
+</body>
 </html>
