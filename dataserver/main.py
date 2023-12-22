@@ -20,9 +20,9 @@ async def main():
 
     save_data()
 
-    setup_events()
+    await setup_events()
 
-    shared.log.info("Starting data save routine. Saving data every 5 minutes...")
+    shared.log.info("Saving clan data every 5 minutes...")
     await save_data_periodically()
 
 

@@ -20,13 +20,21 @@ def move_current_to_former(tag):
     shared.clan_data['former_members'][tag] = member_data
     shared.log.info(f"{member_data['name']} ({tag}) moved to former members dict.")
 
-"""Clan Events"""
+def mark_activity(tag):
+    member = shared.clan_data['current_members'][tag]
+    t = int(time.time())
+    member['last_active'] = t
+    member['activity_series'].append(t)
+    shared.log.info(
+        f"{member['name']} marked active.")
+
+"""CLAN EVENTS"""
 
 # Triggered when a member joins the clan
 @coc.ClanEvents.member_join()
 async def on_clan_member_join(member, clan):
-    #coc_client.add_player_updates(member.tag)
-    #shared.log.info(f"{member.name} ({member.tag}) added to event listener.")
+    coc_client.add_player_updates(member.tag)
+    shared.log.info(f"{member.name} ({member.tag}) added to event listener.")
     shared.log.info(f"{member.name} has joined {clan.name}")
     # check former members for player, if not, create new dict for this player
     d_member = await get_detailed_member(member)
@@ -41,8 +49,8 @@ async def on_clan_member_join(member, clan):
 # Triggered when a member leaves the clan
 @coc.ClanEvents.member_leave()
 async def on_clan_member_leave(member, clan):
-    #coc_client.remove_player_updates(member.tag)
-    #shared.log.info(f"{member.name} ({member.tag}) removed from event listener.")
+    coc_client.remove_player_updates(member.tag)
+    shared.log.info(f"{member.name} ({member.tag}) removed from event listener.")
     shared.log.info(f"{member.name} has left {clan.name}")
     # Need to move this member's dict to former members
     if member.tag in shared.clan_data['current_members']:
@@ -65,7 +73,6 @@ async def update_clan_desc(_, clan):
 async def update_clan_badge(_, clan):
     shared.clan_data['badge'] = clan.badge.large
     #This changes all the time for some reason so I'm not going to log a message
-    #shared.log.info(f"{clan.name} ({clan.tag}) badge updated.")
 
 @coc.ClanEvents.level()
 async def update_clan_level(_, clan):
@@ -97,35 +104,167 @@ async def update_clan_member_count(_, clan):
     shared.clan_data['member_count'] = clan.member_count
     shared.log.info(f"{clan.name} ({clan.tag}) member count updated.")
 
-
-
-@coc.ClanEvents.member_donations()
-async def on_clan_member_donation(old_member, new_member):
-    final_donated_troops = new_member.donations - old_member.donations
-    shared.log.info(
-        f"{new_member} of {new_member.clan} just donated {final_donated_troops} troops.")
-
-@coc.ClanEvents.member_received()
-async def on_clan_member_donation_receive(old_member, new_member):
-    final_received_troops = new_member.received - old_member.received
-    shared.log.info(
-        f"{new_member} of {new_member.clan} just received {final_received_troops} troops.")
-
 @coc.ClanEvents.member_role()
 async def on_clan_member_role_change(old_member, new_member):
     shared.log.info(
         f"{new_member} of {new_member.clan} {old_member.role} -> {new_member.role}")
     shared.clan_data[new_member.tag]['role'] = new_member.role
 
-@coc.ClanEvents.member_trophies()
-async def on_clan_member_trophy_change(old_member, new_member):
-    shared.log.info(
-        f"{new_member} of {new_member.clan} trophies went from {old_member.trophies} to {new_member.trophies}")
+"""PLAYER EVENTS"""
 
-@coc.ClanEvents.member_builder_base_trophies()
-async def clan_member_builder_trophies_changed(old_member, new_member):
+@coc.PlayerEvents.name()
+async def update_player_name(old, player):
+    shared.clan_data['current_members'][player.tag]['name'] = player.name
     shared.log.info(
-        f"{new_member} versus trophies changed from {old_member.builder_base_trophies} to {new_member.builder_base_trophies}")
+        f"{old.name} is now known as {player.name} ({player.tag})")
+    mark_activity(member.tag)
+
+@coc.PlayerEvents.donations()
+async def update_player_donation(old, member):
+    final_donated_troops = member.donations - old.donations
+    shared.log.info(
+        f"{member} of {member.clan} just donated {final_donated_troops} troops.")
+    shared.clan_data['current_members'][member.tag]['donated'].append(
+        {
+            'value': member.get_achievement("Friend in Need").value,
+            'timestamp': int(time.time())
+        }
+    )
+    shared.clan_data['current_members'][member.tag]['spell_donated'].append(
+        {
+            'value': member.get_achievement("Sharing is caring").value,
+            'timestamp': int(time.time())
+        }
+    )
+    shared.clan_data['current_members'][member.tag]['machine_donated'].append(
+        {
+            'value': member.get_achievement("Siege Sharer").value,
+            'timestamp': int(time.time())
+        }
+    )
+    mark_activity(member.tag)
+
+@coc.PlayerEvents.trophies()
+async def update_player_trophies(old, member):
+    shared.log.info(
+        f"{member} trophies changed from {old.trophies} to {member.trophies}")
+    shared.clan_data['current_members'][member.tag]['trophies'].append(
+        {
+            'value': member.trophies,
+            'timestamp': int(time.time())
+        }
+    )
+
+@coc.PlayerEvents.attack_wins()
+async def update_player_attacks(old, member):
+    final_wins = member.attack_wins - old.attack_wins
+    shared.log.info(
+        f"{member} of {member.clan} just won {final_wins} attack(s).")
+    shared.clan_data['current_members'][member.tag]['attacks_won'].append(
+        {
+            'value': member.get_achievement("Conqueror").value,
+            'timestamp': int(time.time())
+        }
+    )
+    shared.clan_data['current_members'][member.tag]['gold_looted'].append(
+        {
+            'value': member.get_achievement("Gold Grab").value,
+            'timestamp': int(time.time())
+        }
+    )
+    shared.clan_data['current_members'][member.tag]['elixir_looted'].append(
+        {
+            'value': member.get_achievement("Elixir Escapade").value,
+            'timestamp': int(time.time())
+        }
+    )
+    shared.clan_data['current_members'][member.tag]['dark_elixir_looted'].append(
+        {
+            'value': member.get_achievement("Heroic Heist").value,
+            'timestamp': int(time.time())
+        }
+    )
+    mark_activity(member.tag)
+
+@coc.PlayerEvents.builder_base_trophies()
+async def update_player_builder_base_trophies(old, member):
+    shared.log.info(
+        f"{member} builder base trophies changed from {old.builder_base_trophies} to {member.builder_base_trophies}")
+    shared.clan_data['current_members'][member.tag]['builder_base_trophies'].append(
+        {
+            'value': member.get_achievement("Champion Builder").value,
+            'timestamp': int(time.time())
+        }
+    )
+    mark_activity(member.tag)
+
+@coc.PlayerEvents.war_stars()
+async def update_player_war_stars(old, member):
+    shared.log.info(
+        f"{member} war stars changed from {old.war_stars} to {member.war_stars}")
+    shared.clan_data['current_members'][member.tag]['war_stars'].append(
+        {
+            'value': member.war_stars,
+            'timestamp': int(time.time())
+        }
+    )
+    old_war_league_stars = old.get_achievement("War League Legend").value
+    new_war_league_stars = member.get_achievement("War League Legend").value
+    if new_war_league_stars != old_war_league_stars:
+        shared.log.info(
+            f"{member.name}'s war league stars {old_war_league_stars} -> {new_war_league_stars}")
+        shared.clan_data['current_members'][member.tag]['war_league_stars'].append(
+            {
+                'value': new_war_league_stars,
+                'timestamp': int(time.time())
+            }
+        )
+    mark_activity(member.tag)
+
+@coc.PlayerEvents.achievement_change()
+async def general_achievement_change(old_member, member, achievement):
+    if achievement == "Games Champion":
+        old = old_member.get_achievement("Games Champion").value
+        new = member.get_achievement("Games Champion").value
+        if new != old:
+            shared.log.info(
+                f"{member.name}'s clan game points {old} -> {new}")
+            shared.clan_data['current_members'][member.tag]['clan_games_points'].append(
+                {
+                    'value': new,
+                    'timestamp': int(time.time())
+                }
+            )
+            mark_activity(member.tag)
+    elif achievement == "Aggressive Capitalism":
+        old = old_member.get_achievement("Aggressive Capitalism").value
+        new = member.get_achievement("Aggressive Capitalism").value
+        if new != old:
+            shared.log.info(
+                f"{member.name}'s capital gold looted {old} -> {new}")
+            shared.clan_data['current_members'][member.tag]['capital_gold_looted'].append(
+                {
+                    'value': new,
+                    'timestamp': int(time.time())
+                }
+            )
+            mark_activity(member.tag)
+    elif achievement == "Most Valuable Clanmate":
+        old = old_member.get_achievement("Most Valuable Clanmate").value
+        new = member.get_achievement("Most Valuable Clanmate").value
+        if new != old:
+            shared.log.info(
+                f"{member.name}'s clan capital contributions {old} -> {new}")
+            shared.clan_data['current_members'][member.tag]['clan_capital_contributions'].append(
+                {
+                    'value': new,
+                    'timestamp': int(time.time())
+                }
+            )
+            mark_activity(member.tag)
+
+
+
 
 
 def timestamp(data):
@@ -135,10 +274,17 @@ def timestamp(data):
     }
 
 
-def setup_events():
+async def setup_events():
     # Add clan to event listener
     coc_client.add_clan_updates(shared.clan_tag)
     shared.log.info(f"{shared.clan_data['name']} ({shared.clan_data['tag']}) added to event listener.")
+
+    # add members to event listener
+    clan = await coc_client.get_clan(shared.clan_tag)
+    for member in clan.members:
+        shared.log.info(
+            f"{member.name} ({member.tag}) of {member.clan} added to event listener.")
+        coc_client.add_player_updates(member.tag)
 
     # we can create a list of functions and open it inside. this would give us flexibility to move the events to a different file if needed
     # Register all the callback functions that are triggered when an event if fired.
@@ -154,11 +300,14 @@ def setup_events():
         update_clan_points,
         update_clan_builder_points,
         update_clan_member_count,
-        on_clan_member_donation,
-        on_clan_member_donation_receive,
         on_clan_member_role_change,
-        on_clan_member_trophy_change,
-        clan_member_builder_trophies_changed
+        update_player_name,
+        update_player_donation,
+        update_player_trophies,
+        update_player_attacks,
+        update_player_builder_base_trophies,
+        update_player_war_stars,
+        general_achievement_change
     )
 
 def set_clan_information(clan):
@@ -192,6 +341,9 @@ async def get_detailed_member(member):
 
 # this has to be a detailed member. doesn't work for member object from clan update
 def init_member(detailed_member, new_member=False):
+    if new_member:
+        shared.clan_data['current_members'][detailed_member.tag] = {}
+
     member_data = shared.clan_data['current_members'][detailed_member.tag]
 
     member_data['name'] = detailed_member.name
@@ -199,6 +351,7 @@ def init_member(detailed_member, new_member=False):
     if new_member:
         member_data['joined'] = int(time.time())
         member_data['last_active'] = int(time.time())
+        member_data['activity_series'] = [int(time.time())]
 
     member_data['role'] = str(detailed_member.role)
     member_data['league'] = detailed_member.league.icon.medium

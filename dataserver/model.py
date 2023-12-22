@@ -48,7 +48,5 @@ def save_data():
 async def save_data_periodically():
     while True:
         await asyncio.sleep(300)  # 300 seconds = 5 minutes
-        shared.log.info("Saving data...")
         save_data()
-        shared.log.info("Data saved.")
 
