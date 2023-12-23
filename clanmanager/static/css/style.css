@@ -10,21 +10,50 @@ body {
     background-color: #f3f3f3;
 }
 
-.container {
-    max-width: 600px;
+hr {
+    width: 100%;
+}
+
+.panel {
+    max-width: 800px;
     margin: 20px auto;
-    padding: 20px;
+    /*padding: 20px;*/
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
     flex-wrap: wrap;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease; /* Transition effect */
 }
 
-.information {
+.panel-info {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
+
+.panel-footer {
+    width: 100%;
+    background-color: #ececec;
+    border-radius: inherit;
+    overflow: hidden;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+.panel:hover {
+    transform: translateY(-2px); /* Move the div 2 pixels up (adjust as needed) */
+}
+
+.panel-footer-link {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.info {
     width: 100%;
     text-align: left;
 }
@@ -34,33 +63,32 @@ body {
     display: flex;
 }
 
-.badge {
+.badge-img {
     width: 100%;
     max-width: 200px;
     height: auto;
     border-radius: 4px;
 }
 
-.league {
+.league-badge {
     max-width: 85px;
     height: auto;
     border-radius: 4px;
 }
 
-.badge-container {
+.badge-wrapper {
     height: 100%;
     position: relative;
     overflow: hidden;
     padding-right: 24px;
 }
 
-.tag,
-.level,
-.location,
-.type,
-.points,
-.builder-base-points,
-.member-count {
+.details {
+    width: 100%;
+}
+
+.subtitle,
+.detail {
     font-size: 16px;
     margin-bottom: 8px;
 }
@@ -70,7 +98,7 @@ body {
     margin-bottom: 20px;
 }
 
-.badge {
+.badge-img {
     width: 100%;
     max-width: 200px;
     height: auto;
@@ -79,9 +107,20 @@ body {
     border-radius: 4px;
 }
 
-.share-link {
-    display: block;
-    margin-top: 20px;
+.link {
+    margin-left: 8px;
+    margin-top: 4px;
+    width: auto;
+    height: auto;
+    display: inline-block;
     text-decoration: none;
-    color: #007bff;
+    color: inherit;
+}
+
+.link:hover {
+    text-decoration: none;
+}
+
+.link:visited {
+    color: inherit;
 }

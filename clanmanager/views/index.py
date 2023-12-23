@@ -8,6 +8,12 @@ import flask
 import clanmanager
 from datetime import datetime
 
+import urllib.parse
+
+def convert_to_encoded_url(input_string):
+    encoded_string = urllib.parse.quote(input_string, safe='')
+    return encoded_string
+
 def unix_time_to_readable(unix_time):
     current_time = datetime.now()
     timestamp = datetime.fromtimestamp(unix_time)
@@ -16,7 +22,9 @@ def unix_time_to_readable(unix_time):
     seconds = time_difference.total_seconds()
 
     if seconds < 60:
-        return "a few seconds ago"
+        return "recently"
+    elif seconds < 360:
+        return "a few minutes ago"
     elif seconds < 3600:
         minutes = int(seconds // 60)
         return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
@@ -64,7 +72,8 @@ def index():
             'last_active': unix_time_to_readable(member['last_active']),
             'role': member['role'],
             'league': member['league'],
-            'share_link': member['share_link']
+            'share_link': member['share_link'],
+            'member_link': f"/{convert_to_encoded_url(tag)}"
         }
         mems.append(m)
     

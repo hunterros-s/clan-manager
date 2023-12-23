@@ -7,46 +7,61 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="badge-container">
-                <img class="badge" src="{{ clan['badge'] }}" alt="Clan Badge">
+    <div class="panel">
+        <div class="panel-info">
+            <div class="header">
+                <div class="badge-wrapper">
+                    <img class="badge-img" src="{{ clan['badge'] }}" alt="Clan Badge">
+                </div>
+                <div class="info">
+                    <h1 class="title">{{ clan['name'] }}</h1>
+                    <p class="subtitle">{{ clan['tag'] }}</p>
+                    <p class="description">{{ clan['description'] }}</p>
+                </div>
             </div>
-            <div class="information">
-                <h1 class="clan-name">{{ clan['name'] }}</h1>
-                <p class="tag">{{ clan['tag'] }}</p>
-                <p class="description">{{ clan['description'] }}</p>
+            <div class="details">
+                <p class="detail">Level: {{ clan['level'] }}</p>
+                <p class="detail">Location: {{ clan['location'] }}</p>
+                <p class="detail">Type: {{ clan['type'] }}</p>
+                <p class="detail">Points: {{ clan['points'] }}</p>
+                <p class="detail">Builder Base Points: {{ clan['builder_base_points'] }}</p>
+                <p class="detail">Member Count: {{ clan['member_count'] }}</p>
             </div>
         </div>
-        <div class="additional-info">
-            <p class="level">Level: {{ clan['level'] }}</p>
-            <p class="location">Location: {{ clan['location'] }}</p>
-            <p class="type">Type: {{ clan['type'] }}</p>
-            <p class="points">Points: {{ clan['points'] }}</p>
-            <p class="builder-base-points">Builder Base Points: {{ clan['builder_base_points'] }}</p>
-            <p class="member-count">Member Count: {{ clan['member_count'] }}</p>
-            <a class="share-link" href="{{ clan['share_link'] }}" target="_blank">Clan Link</a>
+        <div class="panel-footer">
+            <a class="link" href="{{ clan['share_link'] }}" target="_blank">
+                <img src="{{ url_for('static', filename='images/shield.svg') }}" alt="Clan Profile" class="panel-footer-link"/>
+            </a>
         </div>
     </div>
     {% for member in members %}
-    <div class="container">
-        <div class="header">
-            {% if member['league'] is not none %}
-            <div class="badge-container">
-                <img class="league" src="{{ member['league'] }}" alt="Member League">
+    <div class="panel">
+        <div class="panel-info">
+            <div class="header">
+                {% if member['league'] is not none %}
+                <div class="badge-wrapper">
+                    <img class="league-badge" src="{{ member['league'] }}" alt="Member League">
+                </div>
+                {% endif %}
+                <div class="info">
+                    <h1 class="title">{{ member['name'] }}</h1>
+                    <!-- MAKE THE TAG A CLICK TO COPY BUTTON-->
+                    <p class="subtitle">{{ member['tag'] }}</p>
+                    <p class="description">{{ member['role']}}</p>
+                </div>
             </div>
-            {% endif %}
-            <div class="information">
-                <h1 class="clan-name">{{ member['name'] }}</h1>
-                <p class="tag">{{ member['tag'] }}</p>
-                <p class="description">{{ member['role']}}</p>
+            <div class="details">
+                <p class="detail">Last seen {{ member['last_active'] }}</p>
+                <p class="detail">First seen {{ member['joined'] }}</p>
             </div>
         </div>
-        <div class="additional-info">
-            <p>Last seen: {{ member['last_active'] }}</p>
-
-            <p>First seen: {{ member['joined'] }}</p>
-            <a class="share-link" href="{{ member['share_link'] }}" target="_blank">Member Link</a>
+        <div class="panel-footer">
+            <a class="link" href="{{ member['share_link'] }}" target="_blank">
+                <img src="{{ url_for('static', filename='images/shield.svg') }}" alt="COC Profile" class="panel-footer-link"/>
+            </a>
+            <a class="link" href="{{ member['member_link'] }}" target="_blank">
+                <img src="{{ url_for('static', filename='images/profile.svg') }}" alt="Member Profile" class="panel-footer-link"/>
+            </a>
         </div>
     </div>
     {% endfor %}
