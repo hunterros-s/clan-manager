@@ -223,7 +223,7 @@ async def update_player_war_stars(old, member):
 
 @coc.PlayerEvents.achievement_change()
 async def general_achievement_change(old_member, member, achievement):
-    if achievement == "Games Champion":
+    if achievement.name == "Games Champion":
         old = old_member.get_achievement("Games Champion").value
         new = member.get_achievement("Games Champion").value
         if new != old:
@@ -236,7 +236,7 @@ async def general_achievement_change(old_member, member, achievement):
                 }
             )
             mark_activity(member.tag)
-    elif achievement == "Aggressive Capitalism":
+    elif achievement.name == "Aggressive Capitalism":
         old = old_member.get_achievement("Aggressive Capitalism").value
         new = member.get_achievement("Aggressive Capitalism").value
         if new != old:
@@ -249,7 +249,7 @@ async def general_achievement_change(old_member, member, achievement):
                 }
             )
             mark_activity(member.tag)
-    elif achievement == "Most Valuable Clanmate":
+    elif achievement.name == "Most Valuable Clanmate":
         old = old_member.get_achievement("Most Valuable Clanmate").value
         new = member.get_achievement("Most Valuable Clanmate").value
         if new != old:
