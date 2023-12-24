@@ -192,7 +192,7 @@ async def update_player_builder_base_trophies(old, member):
         f"{member} builder base trophies changed from {old.builder_base_trophies} to {member.builder_base_trophies}")
     shared.clan_data['current_members'][member.tag]['builder_base_trophies'].append(
         {
-            'value': member.get_achievement("Champion Builder").value,
+            'value': member.builder_base_trophies,
             'timestamp': int(time.time())
         }
     )
@@ -357,37 +357,32 @@ def init_member(detailed_member, new_member=False):
     member_data['league'] = detailed_member.league.icon.medium
     member_data['share_link'] = detailed_member.share_link
 
-    # time series
-    def update_timeseries(key, achievement):
+    def get_achievement_value(achievement):
+        return detailed_member.get_achievement(achievement).value
+    
+    def update_timeseries(key, value):
         if key not in member_data:
-            member_data[key] = [{
-                "value": detailed_member.get_achievement(achievement).value,
-                "timestamp": int(time.time())
-            }]
-            return
-        most_recent = member_data[key][-1]
-        achievement_value = detailed_member.get_achievement(achievement).value
-        if most_recent['value'] != achievement_value:
-            shared.log.info(f"{detailed_member.name} ({detailed_member.tag}) {key} updated.")
+            member_data[key] = []
+        if not member_data[key] or member_data[key][-1]['value'] != value:
             member_data[key].append({
-                "value": achievement_value,
-                'timestamp': int(time.time())
+                "value": value,
+                "timestamp": int(time.time())
             })
 
-    update_timeseries('trophies', "Sweet Victory!")
-    update_timeseries('builder_base_trophies', "Champion Builder")
-    update_timeseries('gold_looted', "Gold Grab")
-    update_timeseries('elixir_looted', "Elixir Escapade")
-    update_timeseries('dark_elixir_looted', "Heroic Heist")
-    update_timeseries('attacks_won', "Conqueror")
-    update_timeseries('donated', "Friend in Need")
-    update_timeseries('spell_donated', "Sharing is caring")
-    update_timeseries('machine_donated', "Siege Sharer")
-    update_timeseries('war_stars', "War Hero")
-    update_timeseries('clan_games_points', "Games Champion")
-    update_timeseries('war_league_stars', "War League Legend")
-    update_timeseries('capital_gold_looted', "Aggressive Capitalism")
-    update_timeseries('clan_capital_contributions', "Most Valuable Clanmate")
+    update_timeseries('trophies', detailed_member.trophies)
+    update_timeseries('builder_base_trophies', detailed_member.builder_base_trophies)
+    update_timeseries('gold_looted', get_achievement_value("Gold Grab"))
+    update_timeseries('elixir_looted', get_achievement_value("Elixir Escapade"))
+    update_timeseries('dark_elixir_looted', get_achievement_value("Heroic Heist"))
+    update_timeseries('attacks_won', get_achievement_value("Conqueror"))
+    update_timeseries('donated', get_achievement_value("Friend in Need"))
+    update_timeseries('spell_donated', get_achievement_value("Sharing is caring"))
+    update_timeseries('machine_donated', get_achievement_value("Siege Sharer"))
+    update_timeseries('war_stars', get_achievement_value("War Hero"))
+    update_timeseries('clan_games_points', get_achievement_value("Games Champion"))
+    update_timeseries('war_league_stars', get_achievement_value("War League Legend"))
+    update_timeseries('capital_gold_looted', get_achievement_value("Aggressive Capitalism"))
+    update_timeseries('clan_capital_contributions', get_achievement_value("Most Valuable Clanmate"))
 
 # Reinitialize members from the loaded data
 async def reinit_members(clan):
