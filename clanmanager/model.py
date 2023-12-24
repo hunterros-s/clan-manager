@@ -16,3 +16,6 @@ def get_clan_data():
     except requests.RequestException as e:
         print(f"Request Exception: {e}")
         return None
+
+def get_member(data, tag):
+    return data['current_members'].get(tag)
