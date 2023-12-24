@@ -7,3 +7,4 @@ app = flask.Flask(__name__)
 # Import views and models (assuming they contain route handling and model definitions)
 import clanmanager.views
 import clanmanager.model
+import clanmanager.utils
