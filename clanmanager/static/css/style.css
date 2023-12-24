@@ -48,9 +48,13 @@ hr {
     transform: translateY(-2px); /* Move the div 2 pixels up (adjust as needed) */
 }
 
+.nohover:hover {
+    transform: none; /* Remove translate if necessary */
+}
+
 .panel-footer-link {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .info {
