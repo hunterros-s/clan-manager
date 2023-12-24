@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ clan['badge'] }}">
 </head>
+<!-- IDEA: ADD CLAN SUPERLATIVES (MOST ATTACKS, MOST GOLD LOOTED, ETC)-->
 <body>
     <div class="panel nohover">
         <div class="panel-info">
@@ -30,7 +31,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <a class="link" href="{{ clan['share_link'] }}" target="_blank">
+            <a class="link header-footer-element" href="{{ clan['share_link'] }}" target="_blank">
                 <img title="Open in Clash of Clans" src="{{ url_for('static', filename='images/shield.svg') }}" alt="Clan Profile" class="panel-footer-link"/>
             </a>
         </div>
@@ -57,10 +58,10 @@
             </div>
         </div>
         <div class="panel-footer">
-            <a class="link" href="{{ member['share_link'] }}" target="_blank">
+            <a class="link header-footer-element" href="{{ member['share_link'] }}" target="_blank">
                 <img title="Open in Clash of Clans" src="{{ url_for('static', filename='images/shield.svg') }}" alt="COC Profile" class="panel-footer-link"/>
             </a>
-            <a class="link" href="{{ member['member_link'] }}" target="_blank">
+            <a class="link header-footer-element" href="{{ member['member_link'] }}" target="_blank">
                 <img title="Open statistics profile" src="{{ url_for('static', filename='images/profile.svg') }}" alt="Member Profile" class="panel-footer-link"/>
             </a>
         </div>

@@ -44,6 +44,15 @@ hr {
     border-top-right-radius: 0px;
 }
 
+.panel-header {
+    width: 100%;
+    background-color: #ececec;
+    border-radius: inherit;
+    overflow: hidden;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
 .panel:hover {
     transform: translateY(-2px); /* Move the div 2 pixels up (adjust as needed) */
 }
@@ -57,6 +66,10 @@ hr {
     height: 1.5rem;
 }
 
+.panel-header-text {
+    font-size: 1.5rem;
+}
+
 .info {
     width: 100%;
     text-align: left;
@@ -65,6 +78,14 @@ hr {
 .header {
     width: 100%;
     display: flex;
+}
+
+.header-footer-element {
+    margin-left: 8px;
+    margin-top: 4px;
+    width: auto;
+    height: auto;
+    display: inline-block;
 }
 
 .badge-img {
@@ -112,11 +133,6 @@ hr {
 }
 
 .link {
-    margin-left: 8px;
-    margin-top: 4px;
-    width: auto;
-    height: auto;
-    display: inline-block;
     text-decoration: none;
     color: inherit;
 }
@@ -127,4 +143,10 @@ hr {
 
 .link:visited {
     color: inherit;
+}
+
+.plot {
+    width: 100%;
+    border-radius: inherit;
+    overflow: hidden;
 }

@@ -11,6 +11,10 @@ def convert_to_encoded_url(input_string):
     encoded_string = urllib.parse.quote(input_string, safe='')
     return encoded_string
 
+def unix_to_datetime(unix_time):
+    timestamp = datetime.fromtimestamp(unix_time)
+    return timestamp.strftime("%Y-%m-%d %H:%M:%S")
+
 def unix_time_to_readable(unix_time):
     current_time = datetime.now()
     timestamp = datetime.fromtimestamp(unix_time)

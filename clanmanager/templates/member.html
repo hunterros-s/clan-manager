@@ -6,6 +6,8 @@
     <title>{{ name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ league }}">
+    <!-- Include Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <div class="panel nohover">
@@ -28,6 +30,40 @@
                 <p class="detail">First seen {{ joined }}</p>
             </div>
         </div>
+        <div class="panel-footer">
+            <a class="link header-footer-element" href="{{ share_link }}" target="_blank">
+                <img title="Open in Clash of Clans" src="{{ url_for('static', filename='images/shield.svg') }}" alt="COC Profile" class="panel-footer-link"/>
+            </a>
+        </div>
     </div>
+    {% for data in plot_data %}
+    <div class="panel nohover">
+        <div class="panel-header">
+            <p class="header-footer-element panel-header-text">{{ data.name }}</p>
+        </div>
+        <div class="plot" id="plot{{ loop.index }}"></div>
+    </div>
+    <script>
+        var plotData = {
+            x: JSON.parse('{{ data.x | tojson }}'),
+            y: JSON.parse('{{ data.y | tojson }}'),
+            type: 'scatter',
+            line: {
+                color: '{{ data.linecolor }}',
+                width: 3
+            },
+        };
+        var layout = {
+            xaxis: {
+                title: 'Datetime',
+                type: 'date'
+            },
+            yaxis: {
+                title: '{{ data.yaxis }}'
+            }
+        }
+        Plotly.newPlot('plot{{ loop.index }}', [plotData], layout);
+    </script>
+    {% endfor %}
 </body>
 </html>
