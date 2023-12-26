@@ -150,3 +150,29 @@ hr {
     border-radius: inherit;
     overflow: hidden;
 }
+
+ol {
+    list-style-position: outside;
+    padding-left: 20px;
+}
+
+ol li {
+  margin-left: 0;
+  margin-bottom: 4px;
+}
+
+hr {
+    margin: 4px;
+    margin-bottom: 8px;
+}
+
+.thin-hr {
+    height: 1px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.limit-width {
+    max-width: 800px;
+    margin: auto;
+}

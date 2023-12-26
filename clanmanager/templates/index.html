@@ -36,6 +36,24 @@
             </a>
         </div>
     </div>
+    <div class="panel nohover">
+        <div class="panel-info">
+            <h1 class="title">Superlatives</h1>
+            <p class="subtitle">(2 week timespan)</p>
+            
+            {% for superlative in superlatives %}
+            <hr class="thin-hr">
+            <b class="subtitle">{{ superlative.name }}</b>
+            <p class="detail">{{ superlative.description }}</p>
+            <ol>
+                {% for member in superlative.members %}
+                <li><a class="link" href="{{ member.link }}" target="_blank">{{ member.name }} - {{ member.score }}</a></li>
+                {% endfor %}
+            </ol>
+            {% endfor %}
+        </div>
+    </div>
+    <hr class="thin-hr limit-width">
     {% for member in members %}
     <div class="panel">
         <div class="panel-info">

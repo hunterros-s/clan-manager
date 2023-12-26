@@ -9,6 +9,7 @@ import clanmanager
 
 from clanmanager.utils import unix_time_to_readable, convert_to_encoded_url
 
+from clanmanager.views.render_superlatives import render_superlatives
 
 @clanmanager.app.route('/')
 def index():
@@ -31,8 +32,11 @@ def index():
             'member_count': clan_data['member_count'],
             'share_link': clan_data['share_link']
         },
-        'members': []
+        'members': [],
+        'superlatives': []
     }
+
+    context['superlatives'] = render_superlatives(clan_data.get("current_members"))
 
     mems = []
     for tag, member in clan_data['current_members'].items():
@@ -52,7 +56,5 @@ def index():
     sorted_mems = sorted(mems, key=lambda x: x['sort_by'], reverse=True)
 
     context['members'] = sorted_mems
-
-
     
     return flask.render_template("index.html", **context)
