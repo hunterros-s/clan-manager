@@ -117,7 +117,14 @@ async def update_player_name(old, player):
     shared.clan_data['current_members'][player.tag]['name'] = player.name
     shared.log.info(
         f"{old.name} is now known as {player.name} ({player.tag})")
-    mark_activity(member.tag)
+    mark_activity(player.tag)
+
+@coc.PlayerEvents.league()
+async def update_player_badge(_, player):
+    shared.clan_data['current_members'][player.tag]['league'] = player.league.icon.medium
+    shared.log.info(
+        f"Updated {player.name}'s ({player.tag}) league badge.")
+
 
 @coc.PlayerEvents.donations()
 async def update_player_donation(old, member):
