@@ -37,6 +37,12 @@ status() {
     fi
 }
 
+setenv() {
+    export CLAN_TAG=YOUR_CLAN_TAG_HERE
+    export DEV_SITE_EMAIL=YOUR_DEV_SITE_EMAIL
+    export DEV_SITE_PASSWORD=YOUR_DEV_SITE_PASSWORD
+}
+
 case "$1" in
     start)
         start
@@ -49,11 +55,14 @@ case "$1" in
         stop
         start
         ;;
+    setenv)
+        setenv
+        ;;
     status)
         status
         ;;
     *)
-        echo "Usage: $0 {start|stop|restart|status}"
+        echo "Usage: $0 {start|stop|restart|setenv|status}"
         exit 1
         ;;
 esac
