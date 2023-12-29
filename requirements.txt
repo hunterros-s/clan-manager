@@ -3,7 +3,9 @@ aiosignal==1.3.1
 async-timeout==4.0.3
 attrs==23.1.0
 blinker==1.7.0
--e git+ssh://git@github.com/hunterros-s/clan-manager.git@74815b23d538f5c23549edf75bdd272f08060c2d#egg=clanmanager&subdirectory=clanmanager
+certifi==2023.11.17
+charset-normalizer==3.3.2
+-e git+ssh://git@github.com/hunterros-s/clan-manager.git@49d6a6e506308fcb70a96c51090959750a643d52#egg=clanmanager&subdirectory=clanmanager
 click==8.1.7
 coc.py==3.0.0
 Flask==3.0.0
@@ -13,6 +15,8 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 MarkupSafe==2.1.3
 multidict==6.0.4
+requests==2.31.0
 ujson==5.9.0
+urllib3==2.1.0
 Werkzeug==3.0.1
 yarl==1.9.4
