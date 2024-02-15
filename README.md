@@ -1,2 +1,2 @@
 # clash of clans clan manager
-see here: frown.xyz
+see here: [https://www.frown.xyz/](frown.xyz)
