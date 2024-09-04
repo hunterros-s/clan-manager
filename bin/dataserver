@@ -3,6 +3,10 @@
 set -Eeuo pipefail
 
 start() {
+    export CLAN_TAG=YOUR_CLAN_TAG_HERE
+    export DEV_SITE_EMAIL=YOUR_DEV_SITE_EMAIL
+    export DEV_SITE_PASSWORD=YOUR_DEV_SITE_PASSWORD
+
     set +o pipefail
     NPROCS=$(pgrep -f "python3 dataserver/main.py" | wc -l)
     set -o pipefail
@@ -37,12 +41,6 @@ status() {
     fi
 }
 
-setenv() {
-    export CLAN_TAG=YOUR_CLAN_TAG_HERE
-    export DEV_SITE_EMAIL=YOUR_DEV_SITE_EMAIL
-    export DEV_SITE_PASSWORD=YOUR_DEV_SITE_PASSWORD
-}
-
 case "$1" in
     start)
         start
@@ -55,14 +53,11 @@ case "$1" in
         stop
         start
         ;;
-    setenv)
-        setenv
-        ;;
     status)
         status
         ;;
     *)
-        echo "Usage: $0 {start|stop|restart|setenv|status}"
+        echo "Usage: $0 {start|stop|restart|status}"
         exit 1
         ;;
 esac
